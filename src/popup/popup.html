@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Upwork Scraper</title>
+    <link rel="stylesheet" href="../styles/tokens.css" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <!-- Icon sprite (Lucide-style, 24px grid, stroke-based) -->
+    <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+      <defs>
+        <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" /></symbol>
+        <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" /></symbol>
+        <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" /><path d="M8 21h8M12 17v4" /></symbol>
+        <symbol id="i-zap" viewBox="0 0 24 24"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z" /></symbol>
+        <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></symbol>
+        <symbol id="i-briefcase" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></symbol>
+        <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></symbol>
+        <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></symbol>
+        <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></symbol>
+        <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" /></symbol>
+        <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6" /></symbol>
+        <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path d="m7 10 5 5 5-5M12 15V3" /></symbol>
+        <symbol id="i-external" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><path d="M15 3h6v6M10 14 21 3" /></symbol>
+        <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" /></symbol>
+        <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="m8 12 3 3 5-6" /></symbol>
+        <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></symbol>
+        <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" /></symbol>
+        <symbol id="i-activity" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2" /></symbol>
+        <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6" /></symbol>
+      </defs>
+    </svg>
+
+    <div class="app">
+      <!-- Top bar -->
+      <header class="topbar">
+        <div class="brand">
+          <img class="brand-mark" src="../../icons/icon48.png" alt="" width="32" height="32" />
+          <div class="brand-text">
+            <div class="brand-name">Upwork Scraper</div>
+            <div class="brand-sub">Job collector · v<span id="version">0.0.0</span></div>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <button class="icon-btn" id="themeToggle" type="button" title="Toggle theme" aria-label="Toggle theme">
+            <svg class="icon"><use href="#i-sun" /></svg>
+          </button>
+          <button class="icon-btn" id="openUpwork" type="button" title="Open Upwork job search" aria-label="Open Upwork job search">
+            <svg class="icon"><use href="#i-external" /></svg>
+          </button>
+        </div>
+      </header>
+
+      <main class="content">
+        <!-- Current page -->
+        <section class="page-card" id="pageCard" data-state="checking">
+          <div class="page-card-head">
+            <div class="page-icon"><svg class="icon"><use href="#i-globe" /></svg></div>
+            <div class="page-info">
+              <div class="page-label" id="pageLabel">Detecting page…</div>
+              <div class="page-url" id="pageUrl">&nbsp;</div>
+            </div>
+            <span class="badge" id="pageBadge"><span class="badge-dot"></span><span id="pageBadgeText">Checking</span></span>
+          </div>
+          <p class="page-hint" id="pageHint">&nbsp;</p>
+          <button class="btn btn-primary btn-block" id="scrapeBtn" type="button" disabled>
+            <svg class="icon"><use href="#i-zap" /></svg>
+            <span id="scrapeBtnText">Scrape this page</span>
+          </button>
+        </section>
+
+        <!-- Stats -->
+        <section class="stats" aria-label="Statistics">
+          <div class="stat">
+            <div class="stat-icon"><svg class="icon"><use href="#i-briefcase" /></svg></div>
+            <div class="stat-value" id="statTotal">0</div>
+            <div class="stat-label">Saved jobs</div>
+          </div>
+          <div class="stat">
+            <div class="stat-icon"><svg class="icon"><use href="#i-calendar" /></svg></div>
+            <div class="stat-value" id="statToday">0</div>
+            <div class="stat-label">Added today</div>
+          </div>
+          <div class="stat">
+            <div class="stat-icon"><svg class="icon"><use href="#i-clock" /></svg></div>
+            <div class="stat-value" id="statLast">—</div>
+            <div class="stat-label">Last scrape</div>
+          </div>
+        </section>
+
+        <!-- Tabs -->
+        <nav class="tabs" role="tablist" style="--tab-index: 0">
+          <span class="tab-indicator" aria-hidden="true"></span>
+          <button class="tab" role="tab" type="button" data-tab="jobs" aria-selected="true">
+            <svg class="icon"><use href="#i-list" /></svg>Jobs<span class="tab-count" id="jobsCount">0</span>
+          </button>
+          <button class="tab" role="tab" type="button" data-tab="activity" aria-selected="false">
+            <svg class="icon"><use href="#i-activity" /></svg>Activity
+          </button>
+          <button class="tab" role="tab" type="button" data-tab="settings" aria-selected="false">
+            <svg class="icon"><use href="#i-sliders" /></svg>Settings
+          </button>
+        </nav>
+
+        <!-- Jobs panel -->
+        <section class="panel" data-panel="jobs" role="tabpanel">
+          <label class="search-field">
+            <svg class="icon"><use href="#i-search" /></svg>
+            <input id="jobSearch" type="search" placeholder="Search saved jobs…" autocomplete="off" />
+          </label>
+          <ul class="job-list" id="jobList"></ul>
+          <div class="empty" id="jobsEmpty">
+            <div class="empty-art">
+              <svg viewBox="0 0 120 80" aria-hidden="true">
+                <rect x="18" y="14" width="84" height="56" rx="10" class="art-card" />
+                <rect x="30" y="28" width="44" height="6" rx="3" class="art-line strong" />
+                <rect x="30" y="40" width="60" height="5" rx="2.5" class="art-line" />
+                <rect x="30" y="50" width="34" height="5" rx="2.5" class="art-line" />
+                <circle cx="94" cy="18" r="11" class="art-accent" />
+                <path d="M95 12.5 89.5 19.5h4.5l-.5 4 5.5-7h-4.5z" class="art-bolt" />
+              </svg>
+            </div>
+            <div class="empty-title" id="jobsEmptyTitle">No jobs collected yet</div>
+            <div class="empty-text" id="jobsEmptyText">Open an Upwork job search and hit <b>Scrape this page</b>. Jobs you collect will show up here.</div>
+          </div>
+        </section>
+
+        <!-- Activity panel -->
+        <section class="panel" data-panel="activity" role="tabpanel" hidden>
+          <ul class="activity-list" id="activityList"></ul>
+          <div class="empty" id="activityEmpty">
+            <div class="empty-title">Nothing here yet</div>
+            <div class="empty-text">Scrapes, exports and errors will be logged here.</div>
+          </div>
+        </section>
+
+        <!-- Settings panel -->
+        <section class="panel" data-panel="settings" role="tabpanel" hidden>
+          <div class="setting-group">
+            <div class="setting-title">Appearance</div>
+            <div class="segmented" id="themeSegmented" role="radiogroup" aria-label="Theme">
+              <button type="button" role="radio" data-value="system"><svg class="icon"><use href="#i-monitor" /></svg>System</button>
+              <button type="button" role="radio" data-value="light"><svg class="icon"><use href="#i-sun" /></svg>Light</button>
+              <button type="button" role="radio" data-value="dark"><svg class="icon"><use href="#i-moon" /></svg>Dark</button>
+            </div>
+          </div>
+
+          <div class="setting-group">
+            <div class="setting-title">Automation</div>
+            <label class="setting-row is-disabled">
+              <div class="setting-text">
+                <div class="setting-name">Auto-scrape <span class="tag">Soon</span></div>
+                <div class="setting-desc">Collect jobs automatically when you open a search page.</div>
+              </div>
+              <span class="switch"><input type="checkbox" data-setting="autoScrape" disabled /><span class="switch-track"></span></span>
+            </label>
+            <label class="setting-row is-disabled">
+              <div class="setting-text">
+                <div class="setting-name">New job alerts <span class="tag">Soon</span></div>
+                <div class="setting-desc">Get a notification when new matching jobs appear.</div>
+              </div>
+              <span class="switch"><input type="checkbox" data-setting="notifyNewJobs" disabled /><span class="switch-track"></span></span>
+            </label>
+          </div>
+
+          <div class="setting-group">
+            <div class="setting-title">Data</div>
+            <div class="setting-row">
+              <div class="setting-text">
+                <div class="setting-name">Clear scraped data</div>
+                <div class="setting-desc">Removes saved jobs and activity. Settings are kept.</div>
+              </div>
+              <button class="btn btn-danger btn-sm" id="clearData" type="button">
+                <svg class="icon"><use href="#i-trash" /></svg>Clear
+              </button>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <!-- Footer -->
+      <footer class="footer">
+        <span class="footer-note" id="footerNote">0 jobs ready to export</span>
+        <div class="footer-actions">
+          <button class="btn btn-secondary btn-sm" id="exportCsv" type="button" disabled>
+            <svg class="icon"><use href="#i-download" /></svg>CSV
+          </button>
+          <button class="btn btn-secondary btn-sm" id="exportJson" type="button" disabled>
+            <svg class="icon"><use href="#i-file" /></svg>JSON
+          </button>
+        </div>
+      </footer>
+
+      <div class="toast-region" id="toasts" aria-live="polite"></div>
+    </div>
+
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>
